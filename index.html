@@ -87,35 +87,6 @@
             overflow-x: hidden;
         }
 
-        /* ===== PRELOADER ===== */
-        #preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #1a1a2e;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 99999;
-            transition: opacity 0.6s ease, visibility 0.6s ease;
-        }
-
-        #preloader.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .loader-logo {
-            animation: pulse-loader 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse-loader {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.7; }
-        }
-
         /* ===== HEADER ===== */
         .header-scrolled {
             background: rgba(26, 26, 46, 0.97) !important;
@@ -370,7 +341,7 @@
             gap: 8px;
             padding: 5px 0;
             color: #d1d5db;
-            font-size: 14px;
+            font-size: 18px;
         }
 
         .service-item i {
@@ -400,11 +371,6 @@
 </head>
 
 <body class="bg-brand-light font-euro">
-
-    <!-- ===== PRELOADER ===== -->
-    <div id="preloader">
-        <img src="assets/mightydogroofing.png" alt="Loading..." class="loader-logo w-32">
-    </div>
 
     <!-- ===== HEADER ===== -->
     <header id="header" class="fixed top-0 left-0 w-full z-[10000] transition-all duration-500 py-4 px-4 lg:px-8 bg-brand-dark/95">
@@ -493,26 +459,18 @@
                             <div class="service-item"><i class="fas fa-chevron-right"></i> Siding Replacement</div>
                         </div>
 
-                        <!-- Skylights -->
-                        <div class="service-card">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="fas fa-sun text-yellow-400 text-lg"></i>
-                                <span class="text-white font-bold text-sm uppercase tracking-wide">Skylights</span>
-                            </div>
-                            <div class="service-item"><i class="fas fa-chevron-right"></i> Installation & Repair</div>
-                        </div>
-
                         <!-- Accessories -->
                         <div class="service-card">
                             <div class="flex items-center gap-2 mb-3">
                                 <i class="fas fa-plus-circle text-green-400 text-xl"></i>
-                                <span class="text-white font-bold text-base uppercase tracking-wide">Accessories</span>
+                                <span class="text-white font-bold text-lg uppercase tracking-wide">Accessories</span>
                             </div>
-                            <div class="service-item" style="font-size:15px"><i class="fas fa-chevron-right"></i> Chimney</div>
-                            <div class="service-item" style="font-size:15px"><i class="fas fa-chevron-right"></i> Gutters</div>
-                            <div class="service-item" style="font-size:15px"><i class="fas fa-chevron-right"></i> Gutter Guards</div>
-                            <div class="service-item" style="font-size:15px"><i class="fas fa-chevron-right"></i> Snow Removal</div>
-                            <div class="service-item" style="font-size:15px"><i class="fas fa-chevron-right"></i> Ice Dam Removal</div>
+                            <div class="service-item"><i class="fas fa-chevron-right"></i> Skylights</div>
+                            <div class="service-item"><i class="fas fa-chevron-right"></i> Chimney</div>
+                            <div class="service-item"><i class="fas fa-chevron-right"></i> Gutters</div>
+                            <div class="service-item"><i class="fas fa-chevron-right"></i> Gutter Guards</div>
+                            <div class="service-item"><i class="fas fa-chevron-right"></i> Snow Removal</div>
+                            <div class="service-item"><i class="fas fa-chevron-right"></i> Ice Dam Removal</div>
                         </div>
                     </div>
 
@@ -723,13 +681,6 @@
                 }
             });
         })();
-
-        // ===== PRELOADER =====
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('preloader').classList.add('hidden');
-            }, 800);
-        });
 
         // ===== HEADER SCROLL =====
         const header = document.getElementById('header');
