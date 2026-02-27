@@ -391,7 +391,7 @@
     </style>
 
     <!-- CallRail Form Capture -->
-    <script type="text/javascript" src="//cdn.callrail.com/companies/907380537/7f46951650c5449aff71/12/swap.js"></script>
+    <script src="https://cdn.callrail.com/companies/907380537/7f46951650c5449aff71/12/swap.js"></script>
 
     <!-- Meta Pixel Code -->
     <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','4157064904560995');fbq('track','PageView');</script>
@@ -557,7 +557,7 @@
                         </div>
 
                         <div class="p-6 sm:p-8">
-                            <form id="contact-form" onsubmit="return handleFormSubmit(event)" class="space-y-4">
+                            <form id="contact-form" onsubmit="return webLeadFormSubmit(event)" class="space-y-4">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label class="form-label" for="first_name">First Name *</label>
@@ -795,35 +795,69 @@
             });
         });
 
-        // ===== FORM SUBMISSION (CallRail only) =====
-        function handleFormSubmit(event) {
+        function webLeadFormSubmit(event) {
             event.preventDefault();
             const form = event.target;
             const submitBtn = form.querySelector('.form-submit');
             submitBtn.disabled = true;
 
-            // === CALLRAIL MANUAL SUBMISSION CAPTURE ===
-            function triggerCallRail(retries) {
-                if (window.CallTrk && typeof window.CallTrk.captureForm === 'function') {
-                    window.CallTrk.captureForm(form);
-                    console.log('CallRail captureForm executed successfully');
-                } else if (retries > 0) {
-                    console.warn('CallRail captureForm undefined, retrying...');
-                    setTimeout(() => triggerCallRail(retries - 1), 500);
-                } else {
-                    console.error('CallRail captureForm timeout. Are you testing locally via file:/// ?');
-                }
-            }
-            triggerCallRail(6);
+            // Map form data for AccuLynx
+            const formData = new FormData(form);
+            const acculynxData = new FormData();
+            acculynxData.append('FirstName', formData.get('first_name'));
+            acculynxData.append('LastName', formData.get('last_name'));
+            acculynxData.append('Phone', formData.get('phone'));
+            acculynxData.append('Street', formData.get('street'));
+            acculynxData.append('City', formData.get('city'));
+            acculynxData.append('Zip', formData.get('zip'));
 
-            if (typeof FormTracker !== 'undefined' && FormTracker.submit) {
-                FormTracker.submit(form);
+            // Append UTM data to Message
+            var message = formData.get('message') || '';
+            var utmParts = [];
+            ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id'].forEach(function(key) {
+                var val = formData.get(key);
+                if (val) utmParts.push(key + '=' + val);
+            });
+            if (utmParts.length) {
+                message += (message ? '\n\n' : '') + '--- UTM ---\n' + utmParts.join('\n');
             }
-            // ==========================================
+            acculynxData.append('Message', message);
 
-            // Show success message
-            document.getElementById('contact-form').classList.add('hidden');
-            document.getElementById('form-success-message').classList.add('show');
+            // Submit to AccuLynx
+            fetch('https://leads.acculynx.com/api/leads/submit-new-lead?formID=ce2c1625-e455-4f98-ac12-0bc2391e1394', {
+                method: 'post',
+                mode: 'no-cors',
+                body: acculynxData
+            })
+                .then(response => {
+                    console.log('WebLeadForm Submit Success');
+
+                    // === CALLRAIL MANUAL SUBMISSION CAPTURE ===
+                    function triggerCallRail(retries) {
+                        if (window.CallTrk && typeof window.CallTrk.captureForm === 'function') {
+                            window.CallTrk.captureForm(form);
+                            console.log('CallRail captureForm executed successfully');
+                        } else if (retries > 0) {
+                            console.warn('CallRail captureForm undefined, retrying...');
+                            setTimeout(() => triggerCallRail(retries - 1), 500);
+                        } else {
+                            console.error('CallRail captureForm timeout. Are you testing locally via file:/// ?');
+                        }
+                    }
+                    triggerCallRail(6);
+
+                    if (typeof FormTracker !== 'undefined' && FormTracker.submit) {
+                        FormTracker.submit(form);
+                    }
+                    // ==========================================
+
+                    document.getElementById('contact-form').classList.add('hidden');
+                    document.getElementById('form-success-message').classList.add('show');
+                })
+                .catch(error => {
+                    console.error('WebLeadForm Submit Error:', error);
+                    submitBtn.disabled = false;
+                });
 
             return false;
         }
